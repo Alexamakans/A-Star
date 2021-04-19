@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="code\src\World.cpp" />
+    <ClCompile Include="code\src\main.cpp" />
+    <ClCompile Include="code\src\graphics\CharSurface.cpp" />
+    <ClCompile Include="code\src\graphics\CharGraphics.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="code\inc\World.hpp" />
+    <ClInclude Include="code\inc\stdafx.h" />
+    <ClInclude Include="code\inc\graphics\CharSurface.hpp" />
+    <ClInclude Include="code\inc\graphics\CharGraphics.hpp" />
+    <ClInclude Include="code\inc\graphics\core\ISurface.hpp" />
+    <ClInclude Include="code\inc\graphics\core\IGraphics.hpp" />
+    <ClInclude Include="code\inc\graphics\core\IDrawable.hpp" />
+  </ItemGroup>
+</Project>
