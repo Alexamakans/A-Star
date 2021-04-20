@@ -60,6 +60,11 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 			}
 		}
 
+		if (pCurrent == nullptr)
+		{
+			return false;
+		}
+
 		if (pCurrent == &goal)
 		{
 			pOutPath->clear();
@@ -86,7 +91,7 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 
 		for (uint16 i = 0; i < 4; ++i)
 		{
-			Tile* pNeighbor = m_pWorld->GetTile(
+			const Tile* pNeighbor = m_pWorld->GetTile(
 				pCurrent->GetX() + offsets[i][0],
 				pCurrent->GetY() + offsets[i][1]
 			);
@@ -112,7 +117,7 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 				gS = std::numeric_limits<float>::infinity();
 			}
 
-			if (tmpGscore < gS)
+			if (tmpGscore <= gS)
 			{
 				// Found better path, record
 				cameFrom.insert_or_assign(pNeighbor, pCurrent);

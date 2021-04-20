@@ -10,7 +10,7 @@
 
 int main()
 {
-	uint16 w = 32;
+	uint16 w = 16;
 	uint16 h = w;
 
 	CharSurface* pSurface = new CharSurface();
@@ -30,11 +30,14 @@ int main()
 		pWorld->Init(w, h);
 		pWorld->Draw(pGraphics);
 
-		Tile* pStart = pWorld->GetTile(4, 4);
-		Tile* pGoal = pWorld->GetTile(25, 25);
+		pWorld->SetTile(0, 0, TILE_TYPE_WALKABLE);
+		Tile* pStart = pWorld->GetTile(0, 0);
+		pWorld->SetTile(0, 12, TILE_TYPE_WALKABLE);
+		Tile* pGoal = pWorld->GetTile(0, 12);
 
 		pGraphics->Draw('S', pStart->GetX(), pStart->GetY());
 		pGraphics->Draw('G', pGoal->GetX(), pGoal->GetY());
+		pSurface->Present();
 
 		Path path;
 		pPathfinder->CalculatePath(*pStart, *pGoal, &path);
@@ -51,7 +54,7 @@ int main()
 
 		pSurface->Present();
 
-		std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 	}
 
 	return 0;
