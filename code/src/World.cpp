@@ -80,7 +80,7 @@ void World::Draw(IGraphics* pGraphics)
 	{
 		for (uint16 y = 0; y < m_WorldHeight; ++y)
 		{
-			pGraphics->Draw(sTileGraphics.at(m_ppTiles[x][y].type), x, y);
+			pGraphics->Draw(m_ppTiles[x][y].graphic, x, y);
 		}
 	}
 }

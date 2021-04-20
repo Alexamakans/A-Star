@@ -18,18 +18,31 @@ enum TileFlag : uint32 {
 };
 
 typedef std::unordered_map<TileType, TileGraphic> TileGraphicStore;
+typedef std::unordered_map<TileType, TileFlag> TileFlagStore;
+static TileGraphicStore sTileGraphics{
+    { TILE_TYPE_UNWALKABLE,  'X' },
+    { TILE_TYPE_WALKABLE,    ' ' },
+};
+
+static TileFlagStore sTileFlags{
+    { TILE_TYPE_UNWALKABLE,     TILE_FLAG_UNWALKABLE    },
+    { TILE_TYPE_WALKABLE,       TILE_FLAG_NO_FLAGS      },
+};
 
 struct Tile
 {
-    TileType type = UNWALKABLE_TILE;
-};
+public:
+    int32 GetX() const { return x; }
+    int32 GetY() const { return y; }
 
-static TileGraphicStore sTileGraphics {
-    { UNWALKABLE_TILE,  'X' },
-    { WALKABLE_TILE,    ' ' },
-    { GRASS_TILE,       'G' }
-};
+    TileType type = TILE_TYPE_UNWALKABLE;
+    TileGraphic graphic = sTileGraphics.at(type);
+    uint32 flags = TILE_FLAG_UNWALKABLE;
 
+private:
+    uint16 x, y;
+    friend class World;
+};
 
 class World : public IDrawable {
 public:
@@ -41,6 +54,7 @@ public:
     void Init(uint16 worldWidth, uint16 worldHeight);
 
     void SetTile(uint16 x, uint16 y, TileType type);
+    Tile* GetTile(int32 x, int32 y) const;
 
     virtual void Draw(IGraphics* pGraphics) override;
 
