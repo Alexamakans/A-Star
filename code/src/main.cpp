@@ -1,7 +1,7 @@
 #include <World.hpp>
 
-#include <graphics/ConsoleSurface.hpp>
-#include <graphics/ConsoleGraphics.hpp>
+#include <graphics/console/ConsoleSurface.hpp>
+#include <graphics/console/ConsoleGraphics.hpp>
 
 #include <chrono>
 #include <thread>
