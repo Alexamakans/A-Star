@@ -57,10 +57,14 @@ void World::Init(uint16 worldWidth, uint16 worldHeight)
 	}
 }
 
-
 void World::SetTile(uint16 x, uint16 y, TileType type)
 {
+	m_ppTiles[x][y].x = x;
+	m_ppTiles[x][y].y = y;
+
 	m_ppTiles[x][y].type = type;
+	m_ppTiles[x][y].flags = sTileFlags.at(type);
+	m_ppTiles[x][y].graphic = sTileGraphics.at(type);
 }
 
 void World::Draw(IGraphics* pGraphics)
