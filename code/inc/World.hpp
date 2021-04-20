@@ -5,13 +5,16 @@
 #include <unordered_map>
 
 typedef char TileGraphic;
-enum TileType
 enum TileType : uint16
 {
-    UNWALKABLE_TILE = 0,
-    WALKABLE_TILE,
-    GRASS_TILE,
-    NUM_TILES,
+    TILE_TYPE_UNWALKABLE = 0,
+    TILE_TYPE_WALKABLE,
+    TILE_TYPE_MAX,
+};
+
+enum TileFlag : uint32 {
+    TILE_FLAG_NO_FLAGS =        0,
+    TILE_FLAG_UNWALKABLE = 1 << 0,
 };
 
 typedef std::unordered_map<TileType, TileGraphic> TileGraphicStore;
