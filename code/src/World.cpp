@@ -67,6 +67,13 @@ void World::SetTile(uint16 x, uint16 y, TileType type)
 	m_ppTiles[x][y].graphic = sTileGraphics.at(type);
 }
 
+Tile* World::GetTile(int32 x, int32 y) const
+{
+	if (x < 0 || y < 0 || x >= m_WorldWidth || y >= m_WorldHeight)
+		return nullptr;
+	return &m_ppTiles[x][y];
+}
+
 void World::Draw(IGraphics* pGraphics)
 {
 	for (uint16 x = 0; x < m_WorldWidth; ++x)
