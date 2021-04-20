@@ -1,4 +1,7 @@
 !code/
 !.sln
 !.vcxproj
-.vcxproj.user
+*.vcxproj.user
+.vs/
+bin/
+x64/
