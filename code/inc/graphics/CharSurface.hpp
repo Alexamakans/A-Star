@@ -5,8 +5,9 @@
 struct CharBackBuffer
 {
 	uint16 width, height;
-	char** ppData = nullptr;
+	char** ppData;
 
+	CharBackBuffer() : width(), height(), ppData(nullptr) {}
 	~CharBackBuffer() { Release(); }
 	void Release()
 	{
