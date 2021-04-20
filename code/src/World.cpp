@@ -50,11 +50,9 @@ void World::Init(uint16 worldWidth, uint16 worldHeight)
 			int r = rand() % 30;
 
 			if (r < 5)
-				SetTile(x, y, TileType::UNWALKABLE_TILE);
-			else if (r < 15)
-				SetTile(x, y, TileType::GRASS_TILE);
+				SetTile(x, y, TILE_TYPE_UNWALKABLE);
 			else
-				SetTile(x, y, TileType::WALKABLE_TILE);
+				SetTile(x, y, TILE_TYPE_WALKABLE);
 		}
 	}
 }

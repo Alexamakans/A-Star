@@ -6,6 +6,7 @@
 
 typedef char TileGraphic;
 enum TileType
+enum TileType : uint16
 {
     UNWALKABLE_TILE = 0,
     WALKABLE_TILE,
