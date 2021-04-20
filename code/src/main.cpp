@@ -1,7 +1,7 @@
 #include <World.hpp>
 
-#include <graphics/CharGraphics.hpp>
-#include <graphics/CharSurface.hpp>
+#include <graphics/ConsoleSurface.hpp>
+#include <graphics/ConsoleGraphics.hpp>
 
 #include <chrono>
 #include <thread>
@@ -13,11 +13,11 @@ int main()
 	uint16 w = 16;
 	uint16 h = w;
 
-	CharSurface* pSurface = new CharSurface();
+	ConsoleSurface* pSurface = new ConsoleSurface();
 	pSurface->SetSize(w, h);
 
-	CharGraphics* pGraphics = new CharGraphics();
-	pGraphics->Init(pSurface);
+	ConsoleGraphics* pConsoleGraphics = new ConsoleGraphics();
+	pConsoleGraphics->Init(pSurface);
 
 	World* pWorld = new World();
 
@@ -28,15 +28,16 @@ int main()
 	while (running)
 	{
 		pWorld->Init(w, h);
-		pWorld->Draw(pGraphics);
+		pWorld->Draw(pConsoleGraphics);
 
 		pWorld->SetTile(0, 0, TILE_TYPE_WALKABLE);
 		Tile* pStart = pWorld->GetTile(0, 0);
 		pWorld->SetTile(0, 12, TILE_TYPE_WALKABLE);
 		Tile* pGoal = pWorld->GetTile(0, 12);
 
-		pGraphics->Draw('S', pStart->GetX(), pStart->GetY());
-		pGraphics->Draw('G', pGoal->GetX(), pGoal->GetY());
+		pConsoleGraphics->Draw('S', pStart->GetX(), pStart->GetY());
+		pConsoleGraphics->Draw('G', pGoal->GetX(), pGoal->GetY());
+
 		pSurface->Present();
 
 		Path path;
@@ -46,7 +47,7 @@ int main()
 			if (pTile == pStart || pTile == pGoal)
 				continue;
 
-			pGraphics->Draw('*', pTile->GetX(), pTile->GetY());
+			pConsoleGraphics->Draw('*', pTile->GetX(), pTile->GetY());
 			pSurface->Present();
 
 			std::this_thread::sleep_for(std::chrono::milliseconds(16));

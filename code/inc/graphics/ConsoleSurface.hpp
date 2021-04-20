@@ -2,13 +2,13 @@
 
 #include <graphics/core/ISurface.hpp>
 
-struct CharBackBuffer
+struct ConsoleBackBuffer
 {
 	uint16 width, height;
 	char** ppData;
 
-	CharBackBuffer() : width(), height(), ppData(nullptr) {}
-	~CharBackBuffer() { Release(); }
+	ConsoleBackBuffer() : width(), height(), ppData(nullptr) {}
+	~ConsoleBackBuffer() { Release(); }
 	void Release()
 	{
 		if (ppData != nullptr)
@@ -42,11 +42,11 @@ struct CharBackBuffer
 	}
 };
 
-class CharSurface : public ISurface
+class ConsoleSurface : public ISurface
 {
 public:
-	CharSurface();
-	virtual ~CharSurface();
+	ConsoleSurface();
+	virtual ~ConsoleSurface();
 
 	void Release();
 
@@ -69,8 +69,8 @@ public:
 	/**
 	* Returns the back buffer.
 	*/
-	const CharBackBuffer& GetBackBuffer();
+	const ConsoleBackBuffer& GetBackBuffer();
 
 private:
-	CharBackBuffer m_BackBuffer;
+	ConsoleBackBuffer m_BackBuffer;
 };

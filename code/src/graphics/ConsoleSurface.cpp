@@ -1,31 +1,31 @@
-#include <graphics/CharSurface.hpp>
+#include <graphics/ConsoleSurface.hpp>
 
-CharSurface::CharSurface()
+ConsoleSurface::ConsoleSurface()
 {
 }
 
-CharSurface::~CharSurface()
+ConsoleSurface::~ConsoleSurface()
 {
     Release();
 }
 
-void CharSurface::Release()
+void ConsoleSurface::Release()
 {
     m_BackBuffer.Release();
 }
 
-void CharSurface::SetSize(uint16 width, uint16 height)
+void ConsoleSurface::SetSize(uint16 width, uint16 height)
 {
     m_BackBuffer.SetSize(width, height);
 }
 
-void CharSurface::Clear()
+void ConsoleSurface::Clear()
 {
     // unsure of what this should do tbh
     throw "NYI";
 }
 
-void CharSurface::Present()
+void ConsoleSurface::Present()
 {
     system("cls");
 
@@ -41,7 +41,7 @@ void CharSurface::Present()
     std::cout << output << std::endl;
 }
 
-const CharBackBuffer& CharSurface::GetBackBuffer()
+const ConsoleBackBuffer& ConsoleSurface::GetBackBuffer()
 {
     return m_BackBuffer;
 }

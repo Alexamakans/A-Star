@@ -1,19 +1,19 @@
 #pragma once
 
 #include <graphics/core/IGraphics.hpp>
-#include <graphics/CharSurface.hpp>
+#include <graphics/ConsoleSurface.hpp>
 
 class ISurface;
 
-class CharGraphics : public IGraphics
+class ConsoleGraphics : public IGraphics
 {
 public:
-	CharGraphics();
-	virtual ~CharGraphics();
+	ConsoleGraphics();
+	virtual ~ConsoleGraphics();
 
 	virtual void Init(ISurface* pSurface) override;
 	virtual void Draw(char c, int32 x, int32 y) override;
 
 private:
-	CharSurface* m_pSurface;
+	ConsoleSurface* m_pSurface;
 };
