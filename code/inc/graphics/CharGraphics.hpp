@@ -12,7 +12,7 @@ public:
 	virtual ~CharGraphics();
 
 	virtual void Init(ISurface* pSurface) override;
-	virtual void Draw(char c, uint16 x, uint16 y) override;
+	virtual void Draw(char c, int32 x, int32 y) override;
 
 private:
 	CharSurface* m_pSurface;
