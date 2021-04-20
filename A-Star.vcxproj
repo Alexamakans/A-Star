@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\src\pathfinding\Pathfinder.cpp" />
     <ClCompile Include="code\src\main.cpp" />
     <ClCompile Include="code\src\graphics\CharGraphics.cpp" />
     <ClCompile Include="code\src\graphics\CharSurface.cpp" />
@@ -30,6 +31,7 @@
     <ClInclude Include="code\inc\graphics\core\IDrawable.hpp" />
     <ClInclude Include="code\inc\graphics\core\IGraphics.hpp" />
     <ClInclude Include="code\inc\graphics\core\ISurface.hpp" />
+    <ClInclude Include="code\inc\pathfinding\Pathfinder.hpp" />
     <ClInclude Include="code\inc\stdafx.h" />
     <ClInclude Include="code\inc\World.hpp" />
   </ItemGroup>
