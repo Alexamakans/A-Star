@@ -21,11 +21,14 @@ void CharSurface::SetSize(uint16 width, uint16 height)
 
 void CharSurface::Clear()
 {
-    system("cls");
+    // unsure of what this should do tbh
+    throw "NYI";
 }
 
 void CharSurface::Present()
 {
+    system("cls");
+
     static std::string output;
     output = "";
 
