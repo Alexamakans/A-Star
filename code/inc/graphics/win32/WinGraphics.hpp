@@ -1,15 +1,15 @@
 #pragma once
 
+#include <Windows.h>
+
 #include <graphics/core/IGraphics.hpp>
-#include <graphics/console/ConsoleSurface.hpp>
+#include <graphics/win32/WinSurface.hpp>
 
-class ISurface;
-
-class ConsoleGraphics : public IGraphics
+class WinGraphics : public IGraphics
 {
 public:
-	ConsoleGraphics();
-	virtual ~ConsoleGraphics();
+	WinGraphics();
+	virtual ~WinGraphics();
 
 	virtual void Init(ISurface* pSurface) override;
 	virtual void DrawChar(char c, float x, float y) override;
@@ -18,6 +18,9 @@ public:
 	virtual void FillRectangle(float x, float y, float w, float h) override;
 	virtual void DrawRectangle(float x, float y, float w, float h) override;
 
+	void SetColor(COLORREF color);
+
 private:
-	ConsoleSurface* m_pSurface;
+	WinSurface* m_pSurface;
+	HBRUSH m_CurBrush;
 };

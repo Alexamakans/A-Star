@@ -6,6 +6,7 @@ World::World()
 	: m_WorldWidth(0)
 	, m_WorldHeight(0)
 	, m_ppTiles(nullptr)
+	, m_TileSize(1)
 {
 }
 
@@ -74,13 +75,18 @@ Tile* World::GetTile(int32 x, int32 y) const
 	return &m_ppTiles[x][y];
 }
 
+void World::SetTileSize(uint16 tileSize)
+{
+	m_TileSize = tileSize;
+}
+
 void World::Draw(IGraphics* pGraphics)
 {
 	for (uint16 x = 0; x < m_WorldWidth; ++x)
 	{
 		for (uint16 y = 0; y < m_WorldHeight; ++y)
 		{
-			pGraphics->Draw(m_ppTiles[x][y].graphic, x, y);
+			pGraphics->DrawChar(m_ppTiles[x][y].graphic, x * m_TileSize, y * m_TileSize);
 		}
 	}
 }

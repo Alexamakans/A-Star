@@ -1,4 +1,4 @@
-#include <graphics/ConsoleSurface.hpp>
+#include <graphics/console/ConsoleSurface.hpp>
 
 ConsoleSurface::ConsoleSurface()
 {

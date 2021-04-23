@@ -1,4 +1,4 @@
-#include <graphics/ConsoleGraphics.hpp>
+#include <graphics/console/ConsoleGraphics.hpp>
 
 ConsoleGraphics::ConsoleGraphics()
 	: m_pSurface(nullptr)
@@ -25,8 +25,16 @@ void ConsoleGraphics::Init(ISurface* pSurface)
 	}
 }
 
-void ConsoleGraphics::Draw(char c, int32 x, int32 y)
+void ConsoleGraphics::DrawChar(char c, float x, float y)
 {
 	// Flip the indices so we can access a row at a time more easily when outputting to the console.
-	m_pSurface->GetBackBuffer().ppData[y][x] = c;
+	m_pSurface->GetBackBuffer().ppData[(int) y][(int) x] = c;
+}
+
+void ConsoleGraphics::FillRectangle(float x, float y, float w, float h)
+{
+}
+
+void ConsoleGraphics::DrawRectangle(float x, float y, float w, float h)
+{
 }

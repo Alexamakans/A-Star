@@ -56,6 +56,8 @@ public:
     void SetTile(uint16 x, uint16 y, TileType type);
     Tile* GetTile(int32 x, int32 y) const;
 
+    void SetTileSize(uint16 tileSize);
+
     virtual void Draw(IGraphics* pGraphics) override;
 
     // World map data
@@ -65,4 +67,6 @@ public:
     uint16 m_WorldWidth;
     // World height in tiles units.
     uint16 m_WorldHeight;
+
+    uint16 m_TileSize;
 };
