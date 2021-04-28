@@ -29,7 +29,7 @@ namespace SG {
 	void ConsoleContext::DrawChar(char c, float x, float y)
 	{
 		// Flip the indices so we can access a row at a time more easily when outputting to the console.
-		m_pSurface->GetBackBuffer().ppData[(int)y][(int)x] = c;
+		m_pSurface->GetBackBuffer().ppData[(int32)y][(int32)x] = c;
 	}
 
 	void ConsoleContext::FillRectangle(float x, float y, float w, float h)

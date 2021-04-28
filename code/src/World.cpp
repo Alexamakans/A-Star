@@ -19,7 +19,7 @@ void World::Release()
 {
 	if (m_ppTiles != nullptr)
 	{
-		for (int x = m_WorldWidth - 1; x >= 0; --x)
+		for (int32 x = m_WorldWidth - 1; x >= 0; --x)
 		{
 			delete[] m_ppTiles[x];
 			m_ppTiles[x] = nullptr;
@@ -48,9 +48,9 @@ void World::Init(int32 worldWidth, int32 worldHeight)
 
 		for (int32 y = 0; y < worldHeight; ++y)
 		{
-			int r = rand() % 30;
+			int32 r = rand() % 30;
 
-			if (r < 5)
+			if (r < 9)
 				SetTile(x, y, TILE_TYPE_UNWALKABLE);
 			else
 				SetTile(x, y, TILE_TYPE_WALKABLE);
@@ -78,6 +78,11 @@ Tile* World::GetTile(int32 x, int32 y) const
 void World::SetTileSize(int32 tileSize)
 {
 	m_TileSize = tileSize;
+}
+
+int32 World::GetTileSize() const
+{
+	return m_TileSize;
 }
 
 void World::Draw(SG::IContext* pContext)

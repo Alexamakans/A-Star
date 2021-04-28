@@ -54,7 +54,7 @@ namespace SG {
 			SetColor(RGB(0, 0, 0));
 		}
 
-		FillRectangle(x, y, 16, 16);
+		FillRectangle(x, y, 4, 4);
 	}
 
 	void WinContext::FillRectangle(float x, float y, float w, float h)
@@ -72,10 +72,10 @@ namespace SG {
 	{
 		Rectangle(
 			m_pSurface->GetContext(),
-			static_cast<int>(x),
-			static_cast<int>(y),
-			static_cast<int>(x + w),
-			static_cast<int>(y + h));
+			static_cast<int32>(x),
+			static_cast<int32>(y),
+			static_cast<int32>(x + w),
+			static_cast<int32>(y + h));
 	}
 
 	void WinContext::SetColor(COLORREF color)

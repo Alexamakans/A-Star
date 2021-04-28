@@ -16,8 +16,8 @@ namespace SG {
 
 		void Init(
 			HINSTANCE hInstance,
-			int x, int y,
-			int w, int h,
+			int32 x, int32 y,
+			int32 w, int32 h,
 			const wchar_t* title = L"Default Window Title",
 			const wchar_t* className = L"DefaultWindowClassName");
 

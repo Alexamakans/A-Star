@@ -14,7 +14,7 @@ namespace SG {
 		{
 			if (ppData != nullptr)
 			{
-				for (int x = width - 1; x >= 0; --x)
+				for (int32 x = width - 1; x >= 0; --x)
 				{
 					delete[] ppData[x];
 					ppData[x] = nullptr;

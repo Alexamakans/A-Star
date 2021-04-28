@@ -30,8 +30,8 @@ namespace SG {
 
     void WinSurface::Init(
         HINSTANCE hInstance,
-        int x, int y,
-        int w, int h,
+        int32 x, int32 y,
+        int32 w, int32 h,
         const wchar_t* title,
         const wchar_t* className)
     {
@@ -43,13 +43,18 @@ namespace SG {
         wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
         RegisterClass(&wc);
 
+        DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+        RECT rc;
+        SetRect(&rc, 0, 0, w, h);
+        AdjustWindowRect(&rc, dwStyle, FALSE);
+
         m_hWnd = CreateWindowEx(
             0,
             className,
             title,
             WS_OVERLAPPEDWINDOW,
             x, y,
-            w, h,
+            rc.right - rc.left, rc.bottom - rc.top,
             NULL,
             NULL,
             hInstance,
@@ -90,15 +95,13 @@ namespace SG {
 
     LRESULT WinSurface::S_WndProc(HWND hWnd, UINT uMsg, WPARAM w, LPARAM l)
     {
-        auto it = s_WinSurfaces.find(hWnd);
-
-        switch (uMsg)
+        if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP)
         {
-        case WM_DESTROY:
-            PostQuitMessage(0);
-            return 0;
+            if (w != VK_ESCAPE && w != VK_LEFT && w != VK_RIGHT)
+                return DefWindowProc(hWnd, uMsg, w, l);
         }
 
+        auto it = s_WinSurfaces.find(hWnd);
         if (it != s_WinSurfaces.end())
         {
             WND_PROC_FUNC callback = it->second->m_WndProc;

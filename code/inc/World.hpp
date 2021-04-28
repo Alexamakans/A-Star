@@ -57,6 +57,7 @@ public:
     Tile* GetTile(int32 x, int32 y) const;
 
     void SetTileSize(int32 tileSize);
+    int32 GetTileSize() const;
 
     virtual void Draw(SG::IContext* pContext) override;
 
