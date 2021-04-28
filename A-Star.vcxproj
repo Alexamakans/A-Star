@@ -28,12 +28,13 @@
     <ClCompile Include="code\src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="code\inc\graphics\console\ConsoleGraphics.hpp" />
+    <ClInclude Include="code\inc\apps\App.hpp" />
+    <ClInclude Include="code\inc\graphics\console\ConsoleContext.hpp" />
     <ClInclude Include="code\inc\graphics\console\ConsoleSurface.hpp" />
     <ClInclude Include="code\inc\graphics\core\IDrawable.hpp" />
-    <ClInclude Include="code\inc\graphics\core\IGraphics.hpp" />
+    <ClInclude Include="code\inc\graphics\core\IContext.hpp" />
     <ClInclude Include="code\inc\graphics\core\ISurface.hpp" />
-    <ClInclude Include="code\inc\graphics\win32\WinGraphics.hpp" />
+    <ClInclude Include="code\inc\graphics\win32\WinContext.hpp" />
     <ClInclude Include="code\inc\graphics\win32\WinSurface.hpp" />
     <ClInclude Include="code\inc\pathfinding\Pathfinder.hpp" />
     <ClInclude Include="code\inc\stdafx.h" />

@@ -1,9 +1,13 @@
 #pragma once
 
-#include <graphics/core/IGraphics.hpp>
+#include <graphics/core/IContext.hpp>
 
-class IDrawable
-{
-public:
-	virtual void Draw(IGraphics* pGraphics) = 0;
-};
+namespace SG {
+	class IDrawable
+	{
+	public:
+		virtual ~IDrawable() {}
+
+		virtual void Draw(IContext* pContext) = 0;
+	};
+}

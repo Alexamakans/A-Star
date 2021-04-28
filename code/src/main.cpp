@@ -1,5 +1,11 @@
+#pragma region Defines
+#define SAFE_DELETE(x) if (x != nullptr) { delete x; x = nullptr; }
+#pragma endregion
+
+#pragma region Headers
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include <World.hpp>
 #include <pathfinding/Pathfinder.hpp>
@@ -8,64 +14,95 @@
 
 // Console
 #include <graphics/console/ConsoleSurface.hpp>
-#include <graphics/console/ConsoleGraphics.hpp>
+#include <graphics/console/ConsoleContext.hpp>
 
 // DirectX11
 
 // Win32
 #include <graphics/win32/WinSurface.hpp>
-#include <graphics/win32/WinGraphics.hpp>
+#include <graphics/win32/WinContext.hpp>
+#pragma endregion
 
+#pragma region Constants
+constexpr int CONSOLE_APP = 0;
+constexpr int WIN32_APP = 1;
+constexpr int MAX_APPS = 2;
+#pragma endregion
+
+#pragma region Multithreading
+std::thread inputThread;
+std::thread appThread;
+
+std::mutex appTypeChangeMutex;
+#pragma endregion
+
+#pragma region World Settings
+constexpr int WORLD_TILE_WIDTH = 32;
+constexpr int WORLD_TILE_HEIGHT = 32;
+#pragma endregion
+
+#pragma region App variables
+#pragma region Shared between apps
+World* pWorld = nullptr;
+Pathfinder* pPathfinder = nullptr;
+Path path;
+Tile* pStart = nullptr;
+Tile* pGoal = nullptr;
+
+// Flow control
+bool genWorld = true;
+bool calcPath = true;
+bool wholePathDrawn = false;
+int currentTile = 0;
+#pragma endregion
+
+// These are the only two that differ between apps
+SG::ISurface* pSurface = nullptr;
+SG::IContext* pContext = nullptr;
+#pragma endregion
+
+#pragma region Forward Declarations
 void ConsoleApp();
 void DirectX11App();
 void Win32App();
 
-constexpr int CONSOLE_APP = 0;
-constexpr int WIN32_APP = 1;
-constexpr int MAX_APPS = 2;
+void Update();
+void Render();
+void InputTask();
 
-void InputTask(volatile int* appType, volatile bool* bRunning)
-{
-	while (*bRunning)
-	{
+int RegisterExitHandlers();
+#pragma endregion
 
-		if (GetAsyncKeyState(VK_LEFT) & 0x0001)
-		{
-			--*appType;
-			*appType = *appType < 0 ? MAX_APPS - 1 : *appType;
-		}
-		
-		if (GetAsyncKeyState(VK_RIGHT) & 0x0001)
-		{
-			++*appType;
-			*appType = *appType >= MAX_APPS ? 0 : *appType;
-		}
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(5));
-
-		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
-		{
-			*bRunning = false;
-		}
-	}
-}
-
+#pragma region Program flow control variables
+volatile int appType = CONSOLE_APP;
+volatile int prevAppType = -1;
+volatile bool bRunning = true;
+volatile bool bReceiveInput = true;
 volatile bool bSwitchApp = false;
+#pragma endregion
 
 int main()
 {
-	volatile int appType = CONSOLE_APP;
-	int prevAppType = -1;
-	volatile bool bRunning = true;
+	if (RegisterExitHandlers() != EXIT_SUCCESS)
+	{
+		std::cerr << "Registration of exit handlers failed" << std::endl;
+		return EXIT_FAILURE;
+	}
 
-	std::thread inputThread(InputTask, &appType, &bRunning);
+	inputThread = std::thread(InputTask);
 
-	std::thread appThread;
+	pWorld = new World();
+	pPathfinder = new Pathfinder();
+	pPathfinder->SetWorld(pWorld);
 
+	// This loop waits for and handles app switching
 	while (bRunning)
 	{
 		if (prevAppType != appType)
 		{
+			prevAppType = appType;
+
+			// Exit current app
 			if (appThread.joinable())
 			{
 				bSwitchApp = true;
@@ -73,7 +110,7 @@ int main()
 				bSwitchApp = false;
 			}
 
-			prevAppType = appType;
+			// Init and launch the switched to app
 			if (appType == CONSOLE_APP)
 			{
 				appThread = std::thread(ConsoleApp);
@@ -84,125 +121,172 @@ int main()
 			}
 		}
 
-		if (!bRunning && inputThread.joinable())
-		{
-			inputThread.join();
-		}
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(30));
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
 
-	return 0;
+	return EXIT_SUCCESS;
 }
 
+#pragma region General Flow Functions
+void Update()
+{
+	if (genWorld)
+	{
+		pWorld->Init(WORLD_TILE_WIDTH, WORLD_TILE_HEIGHT);
+		currentTile = 0;
+		calcPath = true;
+		genWorld = false;
+	}
+
+	if (calcPath)
+	{
+		pStart = pWorld->GetTile(0, 0);
+		pWorld->SetTile(0, 0, TILE_TYPE_WALKABLE);
+		pStart->graphic = 'S';
+
+		pGoal = pWorld->GetTile(WORLD_TILE_WIDTH - 1, WORLD_TILE_HEIGHT - 1);
+		pWorld->SetTile(WORLD_TILE_WIDTH - 1, WORLD_TILE_HEIGHT - 1, TILE_TYPE_WALKABLE);
+		pGoal->graphic = 'G';
+
+		calcPath = false;
+
+		if (!pPathfinder->CalculatePath(*pStart, *pGoal, &path))
+		{
+			genWorld = true;
+			calcPath = true;
+
+			return;
+		}
+	}
+
+	if (currentTile < path.size())
+	{
+		const Tile* pTile = path.at(currentTile);
+		currentTile++;
+		if (pTile == pStart || pTile == pGoal)
+			return;
+
+		pWorld->GetTile(pTile->GetX(), pTile->GetY())->graphic = '*';
+	}
+
+	if (currentTile == path.size())
+	{
+		wholePathDrawn = true;
+	}
+}
+
+void Render()
+{
+	{ // Thread-safe
+		std::scoped_lock lock(appTypeChangeMutex);
+
+		if (prevAppType != appType || !bRunning || bSwitchApp)
+		{
+			return;
+		}
+
+		switch (appType)
+		{
+		case CONSOLE_APP:
+		{
+			pWorld->Draw(pContext);
+			pSurface->Present();
+			break;
+		}
+		case WIN32_APP:
+		{
+			InvalidateRect(((SG::WinSurface*)pSurface)->GetHWND(), NULL, TRUE);
+			break;
+		}
+		}
+	}
+
+	if (wholePathDrawn)
+	{
+		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		genWorld = true;
+		calcPath = true;
+		wholePathDrawn = false;
+	}
+}
+
+void InputTask()
+{
+	while (bReceiveInput)
+	{
+		if (GetAsyncKeyState(VK_LEFT) & 0x0001)
+		{
+			std::scoped_lock lock(appTypeChangeMutex);
+			--appType;
+			appType = appType < 0 ? MAX_APPS - 1 : appType;
+		}
+
+		if (GetAsyncKeyState(VK_RIGHT) & 0x0001)
+		{
+			std::scoped_lock lock(appTypeChangeMutex);
+			++appType;
+			appType = appType >= MAX_APPS ? 0 : appType;
+		}
+
+		std::this_thread::sleep_for(std::chrono::milliseconds(5));
+
+		if (GetAsyncKeyState(VK_ESCAPE) & 0x0001)
+		{
+			bRunning = false;
+		}
+	}
+}
+#pragma endregion
+
+#pragma region Console App
+void InitConsoleApp();
+void ReleaseConsoleApp();
 void ConsoleApp()
 {
-	uint16 w = 8;
-	uint16 h = w;
-
-	ConsoleSurface* pSurface = new ConsoleSurface();
-	pSurface->SetSize(w, h);
-
-	ConsoleGraphics* pGraphics = new ConsoleGraphics();
-	pGraphics->Init(pSurface);
-
-	World* pWorld = new World();
-
-	Pathfinder* pPathfinder = new Pathfinder();
-	pPathfinder->SetWorld(pWorld);
+	InitConsoleApp();
 
 	while (!bSwitchApp)
 	{
-		pWorld->Init(w, h);
-		pWorld->Draw(pGraphics);
+		Update();
+		Render();
 
-		pWorld->SetTile(1, 1, TILE_TYPE_WALKABLE);
-		Tile* pStart = pWorld->GetTile(0, 0);
-		pWorld->SetTile(w - 1, h - 1, TILE_TYPE_WALKABLE);
-		Tile* pGoal = pWorld->GetTile(w - 1, h - 1);
-
-		pGraphics->DrawChar('S', static_cast<float>(pStart->GetX()), static_cast<float>(pStart->GetY()));
-		pGraphics->DrawChar('G', static_cast<float>(pGoal->GetX()), static_cast<float>(pGoal->GetY()));
-
-		pSurface->Present();
-
-		Path path;
-		pPathfinder->CalculatePath(*pStart, *pGoal, &path);
-		for (const Tile* pTile : path)
-		{
-			if (pTile == pStart || pTile == pGoal)
-				continue;
-
-			pGraphics->DrawChar('*', static_cast<float>(pTile->GetX()), static_cast<float>(pTile->GetY()));
-			pSurface->Present();
-
-			std::this_thread::sleep_for(std::chrono::milliseconds(16));
-		}
-
-		pSurface->Present();
-
-		std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+		std::this_thread::sleep_for(std::chrono::milliseconds(16));
 	}
 
-	delete pPathfinder;
-	delete pWorld;
-	delete pGraphics;
-	delete pSurface;
+	ReleaseConsoleApp();
 }
 
+void InitConsoleApp()
+{
+	pWorld->SetTileSize(1);
+
+	pSurface = new SG::ConsoleSurface();
+	pSurface->Resize(WORLD_TILE_WIDTH, WORLD_TILE_HEIGHT);
+
+	pContext = new SG::ConsoleContext();
+	pContext->Init(pSurface);
+}
+
+void ReleaseConsoleApp()
+{
+	SAFE_DELETE(pContext);
+	SAFE_DELETE(pSurface);
+}
+#pragma endregion
+
+#pragma region DirectX11 App
 void DirectX11App()
 {
-
+	throw "Not Implemented - DirectX11App";
 }
+#pragma endregion
 
+#pragma region Win32 App
+void InitWin32App();
+void ReleaseWin32App();
 void Win32App()
 {
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-
-	WinSurface* pSurface = new WinSurface();
-
-	WinGraphics* pGraphics = new WinGraphics();
-	pGraphics->Init(pSurface);
-
-	World* pWorld = new World();
-	pWorld->SetTileSize(16);
-
-	Pathfinder* pPathfinder = new Pathfinder();
-	pPathfinder->SetWorld(pWorld);
-
-	WND_PROC_FUNC pWndProc = [&](HWND hWnd, UINT uMsg, WPARAM w, LPARAM l) -> LRESULT {
-		switch (uMsg)
-		{
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			HDC hdc = BeginPaint(hWnd, &ps);
-			pSurface->SetContext(hdc);
-			//pSurface->Clear();
-
-			if (pWorld)
-				pWorld->Draw(pGraphics);
-
-			BOOL bRes = EndPaint(hWnd, &ps);
-			return 0;
-		}
-		}
-
-		return DefWindowProc(hWnd, uMsg, w, l);
-	};
-
-	const int S = 64;
-
-	pSurface->SetWndProc(pWndProc);
-	pSurface->Init(hInstance, 0, 0, 900, 900);
-	//pSurface->Init(hInstance, 0, 0, S, S);
-
-	int currentTile = 0;
-	bool genWorld = true;
-	bool calcPath = true;
-	Tile* pStart = nullptr;
-	Tile* pGoal = nullptr;
-	Path path;
+	InitWin32App();
 
 	// Game loop
 	MSG msg;
@@ -215,53 +299,10 @@ void Win32App()
 			DispatchMessage(&msg);
 		}
 		else {
-			if (genWorld)
-			{
-				pWorld->Init(S, S);
-				currentTile = 0;
-				calcPath = true;
-				genWorld = false;
-			}
+			Update();
+			Render();
 
-			if (calcPath)
-			{
-				pStart = pWorld->GetTile(1, 1);
-				pWorld->SetTile(1, 1, TILE_TYPE_WALKABLE);
-				pStart->graphic = 'S';
-
-				pGoal = pWorld->GetTile(S - 1, S - 1);
-				pWorld->SetTile(S - 1, S - 1, TILE_TYPE_WALKABLE);
-				pGoal->graphic = 'G';
-
-				calcPath = false;
-
-				if (!pPathfinder->CalculatePath(*pStart, *pGoal, &path))
-				{
-					genWorld = true;
-					calcPath = true;
-					continue;
-				}
-			}
-
-			if (currentTile < path.size())
-			{
-				const Tile* pTile = path.at(currentTile);
-				currentTile++;
-				if (pTile == pStart || pTile == pGoal)
-					continue;
-
-				pWorld->GetTile(pTile->GetX(), pTile->GetY())->graphic = '*';
-			}
-
-			InvalidateRect(pSurface->GetHWND(), 0, TRUE);
-			std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-			if (currentTile == path.size())
-			{
-				std::this_thread::sleep_for(std::chrono::milliseconds(2000));
-				genWorld = true;
-				calcPath = true;
-			}
+			std::this_thread::sleep_for(std::chrono::milliseconds(16));
 		}
 
 		if (bSwitchApp)
@@ -270,8 +311,101 @@ void Win32App()
 		}
 	}
 
-	delete pPathfinder;
-	delete pWorld;
-	delete pGraphics;
-	delete pSurface;
+	ReleaseWin32App();
 }
+
+void InitWin32App()
+{
+	HINSTANCE hInstance = GetModuleHandle(NULL);
+
+	pSurface = new SG::WinSurface();
+	SG::WinSurface* pWinSurface = reinterpret_cast<SG::WinSurface*>(pSurface);
+
+	pContext = new SG::WinContext();
+	pContext->Init(pSurface);
+
+	pWorld->SetTileSize(16);
+
+	SG::WND_PROC_FUNC pWndProc = [=](HWND hWnd, UINT uMsg, WPARAM w, LPARAM l) -> LRESULT {
+		switch (uMsg)
+		{
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			HDC hdc = BeginPaint(hWnd, &ps);
+			pWinSurface->SetContext(hdc);
+
+			pWorld->Draw(pContext);
+
+			BOOL bRes = EndPaint(hWnd, &ps);
+			return 0;
+		}
+		}
+
+		return DefWindowProc(hWnd, uMsg, w, l);
+	};
+
+	pWinSurface->SetWndProc(pWndProc);
+	pWinSurface->Init(hInstance, 0, 0, 720, 720);
+}
+
+void ReleaseWin32App()
+{
+	// Did we exit because we X'd the window?
+	if (!bSwitchApp)
+	{
+		// Yes
+		exit(EXIT_SUCCESS);
+	}
+
+	SAFE_DELETE(pContext);
+	SAFE_DELETE(pSurface);
+}
+#pragma endregion
+
+#pragma region Exit Handling Functions
+void AtExitRelease()
+{
+	if (appThread.joinable())
+	{
+		bSwitchApp = true;
+		appThread.join();
+		bSwitchApp = false;
+	}
+
+	if (inputThread.joinable())
+	{
+		bReceiveInput = false;
+		inputThread.join();
+	}
+
+	SAFE_DELETE(pContext);
+	SAFE_DELETE(pSurface);
+	SAFE_DELETE(pPathfinder);
+	SAFE_DELETE(pWorld);
+}
+
+BOOL ConsoleCtrlHandler(DWORD event)
+{
+	if (event == CTRL_CLOSE_EVENT) {
+		exit(EXIT_SUCCESS);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int RegisterExitHandlers()
+{
+	// Console close handler
+	SetConsoleCtrlHandler((PHANDLER_ROUTINE)(ConsoleCtrlHandler), TRUE);
+
+	// Window close handler
+	const int regAtExitReleaseResult = std::atexit(AtExitRelease);
+	if (regAtExitReleaseResult != 0)
+	{
+		return EXIT_FAILURE;
+	}
+
+	return EXIT_SUCCESS;
+}
+#pragma endregion

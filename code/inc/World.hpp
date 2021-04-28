@@ -5,14 +5,14 @@
 #include <unordered_map>
 
 typedef char TileGraphic;
-enum TileType : uint16
+enum TileType : int32
 {
     TILE_TYPE_UNWALKABLE = 0,
     TILE_TYPE_WALKABLE,
     TILE_TYPE_MAX,
 };
 
-enum TileFlag : uint32 {
+enum TileFlag : int32 {
     TILE_FLAG_NO_FLAGS =        0,
     TILE_FLAG_UNWALKABLE = 1 << 0,
 };
@@ -37,36 +37,36 @@ public:
 
     TileType type = TILE_TYPE_UNWALKABLE;
     TileGraphic graphic = sTileGraphics.at(type);
-    uint32 flags = TILE_FLAG_UNWALKABLE;
+    int32 flags = TILE_FLAG_UNWALKABLE;
 
 private:
-    uint16 x, y;
+    int32 x, y;
     friend class World;
 };
 
-class World : public IDrawable {
+class World : public SG::IDrawable {
 public:
     World();
     virtual ~World();
 
     void Release();
 
-    void Init(uint16 worldWidth, uint16 worldHeight);
+    void Init(int32 worldWidth, int32 worldHeight);
 
-    void SetTile(uint16 x, uint16 y, TileType type);
+    void SetTile(int32 x, int32 y, TileType type);
     Tile* GetTile(int32 x, int32 y) const;
 
-    void SetTileSize(uint16 tileSize);
+    void SetTileSize(int32 tileSize);
 
-    virtual void Draw(IGraphics* pGraphics) override;
+    virtual void Draw(SG::IContext* pContext) override;
 
     // World map data
     Tile** m_ppTiles;
 
     // World width in tile units.
-    uint16 m_WorldWidth;
+    int32 m_WorldWidth;
     // World height in tiles units.
-    uint16 m_WorldHeight;
+    int32 m_WorldHeight;
 
-    uint16 m_TileSize;
+    int32 m_TileSize;
 };

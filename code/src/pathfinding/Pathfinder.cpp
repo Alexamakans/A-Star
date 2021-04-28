@@ -12,6 +12,8 @@ Pathfinder::Pathfinder()
 
 Pathfinder::~Pathfinder()
 {
+	Release();
+
 	m_pWorld = nullptr;
 }
 
@@ -30,7 +32,7 @@ float ManhattanDistance(const Tile& a, const Tile& b)
 float EuclideanDistance(const Tile& a, const Tile& b)
 {
 	// sqrtf not needed here, but without it it wouldn't really be Euclidean Distance, so I'm leaving it in.
-	return sqrtf((a.GetX() - b.GetX()) * (a.GetX() - b.GetY()) + (a.GetY() - b.GetY()) * (a.GetY() - b.GetY()));
+	return sqrtf(static_cast<float>((a.GetX() - b.GetX()) * (a.GetX() - b.GetY()) + (a.GetY() - b.GetY()) * (a.GetY() - b.GetY())));
 }
 
 float h(const Tile& a, const Tile& b)
@@ -63,11 +65,7 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 		{
 			ReconstructPath(pCurrentNode->pTile, cameFrom, pOutPath);
 
-			// deallocate nodes
-			for (const std::pair<const Tile*, Node*>& pair : m_TileNodeMappings)
-				delete pair.second;
-
-			m_TileNodeMappings.clear();
+			Release();
 
 			return true;
 		}
@@ -83,7 +81,7 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 		};
 
 		// For each orthogonal neighbor
-		for (uint16 i = 0; i < 4; ++i)
+		for (int32 i = 0; i < 4; ++i)
 		{
 			const Tile* pNeighbor = GetUsingOffset(pCurrentNode->pTile, offsets[i][0], offsets[i][1]);
 
@@ -115,13 +113,18 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 		}
 	}
 
-	// deallocate nodes
-	for (const std::pair<const Tile*, Node*>& pair : m_TileNodeMappings)
-		delete pair.second;
-
-	m_TileNodeMappings.clear();
+	Release();
 
 	return false;
+}
+
+void Pathfinder::Release()
+{
+	// deallocate nodes
+	for (const std::pair<const Tile*, Node*>& pair : m_TileNodeMappings)
+		if (pair.second != nullptr) delete pair.second;
+
+	m_TileNodeMappings.clear();
 }
 
 void Pathfinder::ReconstructPath(const Tile* pTile, std::unordered_map<const Tile*, const Tile*> cameFrom, Path* pOutPath)

@@ -5,43 +5,46 @@
 #include <graphics/core/ISurface.hpp>
 
 #include <functional>
+namespace SG {
+	typedef std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WND_PROC_FUNC;
 
-typedef std::function<LRESULT(HWND, UINT, WPARAM, LPARAM)> WND_PROC_FUNC;
+	class WinSurface : public ISurface
+	{
+	public:
+		WinSurface();
+		virtual ~WinSurface();
 
-class WinSurface : public ISurface
-{
-public:
-	WinSurface();
-	virtual ~WinSurface();
+		void Init(
+			HINSTANCE hInstance,
+			int x, int y,
+			int w, int h,
+			const wchar_t* title = L"Default Window Title",
+			const wchar_t* className = L"DefaultWindowClassName");
 
-	void Init(
-		HINSTANCE hInstance,
-		int x, int y,
-		int w, int h,
-		const wchar_t* title = L"Default Window Title",
-		const wchar_t* className = L"DefaultWindowClassName");
+		// Inherited via ISurface
+		virtual void Clear() override;
 
-	// Inherited via ISurface
-	virtual void Clear() override;
+		virtual void Present() override;
 
-	virtual void Present() override;
+		virtual void Resize(int32 width, int32 height) override;
 
-	void SetWndProc(WND_PROC_FUNC wndProc);
+		void SetWndProc(WND_PROC_FUNC wndProc);
 
-	WND_PROC_FUNC m_WndProc;
+		WND_PROC_FUNC m_WndProc;
 
-	static LRESULT CALLBACK S_WndProc(HWND hWnd, UINT msg, WPARAM w, LPARAM l);
+		static LRESULT CALLBACK S_WndProc(HWND hWnd, UINT msg, WPARAM w, LPARAM l);
 
-	HDC GetContext() const;
-	void SetContext(HDC context);
+		HDC GetContext() const;
+		void SetContext(HDC context);
 
-	void SetClearColor(COLORREF clearColor);
+		void SetClearColor(COLORREF clearColor);
 
-	HWND GetHWND() const;
+		HWND GetHWND() const;
 
-private:
-	HDC m_Context;
-	HWND m_hWnd;
+	private:
+		HDC m_Context;
+		HWND m_hWnd;
 
-	COLORREF m_ClearColor;
-};
+		COLORREF m_ClearColor;
+	};
+}

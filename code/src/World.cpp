@@ -33,7 +33,7 @@ void World::Release()
 	m_WorldHeight = 0;
 }
 
-void World::Init(uint16 worldWidth, uint16 worldHeight)
+void World::Init(int32 worldWidth, int32 worldHeight)
 {
 	srand(static_cast<uint32>(time(static_cast<time_t*>(NULL))));
 
@@ -42,11 +42,11 @@ void World::Init(uint16 worldWidth, uint16 worldHeight)
 	m_WorldWidth = worldWidth;
 	m_WorldHeight = worldHeight;
 	m_ppTiles = new Tile*[worldWidth];
-	for (uint16 x = 0; x < worldWidth; ++x)
+	for (int32 x = 0; x < worldWidth; ++x)
 	{
 		m_ppTiles[x] = new Tile[worldHeight];
 
-		for (uint16 y = 0; y < worldHeight; ++y)
+		for (int32 y = 0; y < worldHeight; ++y)
 		{
 			int r = rand() % 30;
 
@@ -58,7 +58,7 @@ void World::Init(uint16 worldWidth, uint16 worldHeight)
 	}
 }
 
-void World::SetTile(uint16 x, uint16 y, TileType type)
+void World::SetTile(int32 x, int32 y, TileType type)
 {
 	m_ppTiles[x][y].x = x;
 	m_ppTiles[x][y].y = y;
@@ -75,18 +75,21 @@ Tile* World::GetTile(int32 x, int32 y) const
 	return &m_ppTiles[x][y];
 }
 
-void World::SetTileSize(uint16 tileSize)
+void World::SetTileSize(int32 tileSize)
 {
 	m_TileSize = tileSize;
 }
 
-void World::Draw(IGraphics* pGraphics)
+void World::Draw(SG::IContext* pContext)
 {
-	for (uint16 x = 0; x < m_WorldWidth; ++x)
+	for (int32 x = 0; x < m_WorldWidth; ++x)
 	{
-		for (uint16 y = 0; y < m_WorldHeight; ++y)
+		for (int32 y = 0; y < m_WorldHeight; ++y)
 		{
-			pGraphics->DrawChar(m_ppTiles[x][y].graphic, x * m_TileSize, y * m_TileSize);
+			pContext->DrawChar(m_ppTiles[x][y].graphic,
+				static_cast<float>(x * m_TileSize),
+				static_cast<float>(y * m_TileSize)
+			);
 		}
 	}
 }

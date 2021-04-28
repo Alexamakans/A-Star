@@ -44,6 +44,8 @@ public:
 	bool CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path* pOutPath);
 
 private:
+	void Release();
+
 	void ReconstructPath(const Tile* pTile, std::unordered_map<const Tile*, const Tile*> cameFrom, _Inout_ Path* pOutPath);
 	Node* GetOrCreateNode(const Tile* pTile);
 	const Tile* GetUsingOffset(const Tile* pTile, int32 dx, int32 dy);

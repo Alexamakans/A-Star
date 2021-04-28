@@ -2,75 +2,77 @@
 
 #include <graphics/core/ISurface.hpp>
 
-struct ConsoleBackBuffer
-{
-	uint16 width, height;
-	char** ppData;
-
-	ConsoleBackBuffer() : width(), height(), ppData(nullptr) {}
-	~ConsoleBackBuffer() { Release(); }
-	void Release()
+namespace SG {
+	struct ConsoleBackBuffer
 	{
-		if (ppData != nullptr)
+		int32 width, height;
+		char** ppData;
+
+		ConsoleBackBuffer() : width(), height(), ppData(nullptr) {}
+		~ConsoleBackBuffer() { Release(); }
+		void Release()
 		{
-			for (int x = width - 1; x >= 0; --x)
+			if (ppData != nullptr)
 			{
-				delete[] ppData[x];
-				ppData[x] = nullptr;
-			}
+				for (int x = width - 1; x >= 0; --x)
+				{
+					delete[] ppData[x];
+					ppData[x] = nullptr;
+				}
 
-			delete[] ppData;
-			ppData = nullptr;
-		}
-	}
-	void SetSize(uint16 width, uint16 height)
-	{
-		Release();
-
-		this->width = width;
-		this->height = height;
-
-		ppData = new char* [width];
-		for (uint16 x = 0; x < width; ++x)
-		{
-			ppData[x] = new char[height];
-			for (uint16 y = 0; y < height; ++y)
-			{
-				ppData[x][y] = ' ';
+				delete[] ppData;
+				ppData = nullptr;
 			}
 		}
-	}
-};
+		void Resize(int32 width, int32 height)
+		{
+			Release();
 
-class ConsoleSurface : public ISurface
-{
-public:
-	ConsoleSurface();
-	virtual ~ConsoleSurface();
+			this->width = width;
+			this->height = height;
 
-	void Release();
+			ppData = new char* [width];
+			for (int32 x = 0; x < width; ++x)
+			{
+				ppData[x] = new char[height];
+				for (int32 y = 0; y < height; ++y)
+				{
+					ppData[x][y] = ' ';
+				}
+			}
+		}
+	};
 
-	/**
-	* Sets the size of the underlying back buffer.
-	* In doing this, the back buffer is also cleared.
-	*/
-	virtual void SetSize(uint16 width, uint16 height);
+	class ConsoleSurface : public ISurface
+	{
+	public:
+		ConsoleSurface();
+		virtual ~ConsoleSurface();
 
-	/**
-	* Clears the back buffer.
-	*/
-	virtual void Clear() override;
+		void Release();
 
-	/**
-	* Presents the back buffer to the screen.
-	*/
-	virtual void Present() override;
+		/**
+		* Sets the size of the underlying back buffer.
+		* In doing this, the back buffer is also cleared.
+		*/
+		virtual void Resize(int32 width, int32 height) override;
 
-	/**
-	* Returns the back buffer.
-	*/
-	const ConsoleBackBuffer& GetBackBuffer();
+		/**
+		* Clears the back buffer.
+		*/
+		virtual void Clear() override;
 
-private:
-	ConsoleBackBuffer m_BackBuffer;
-};
+		/**
+		* Presents the back buffer to the screen.
+		*/
+		virtual void Present() override;
+
+		/**
+		* Returns the back buffer.
+		*/
+		const ConsoleBackBuffer& GetBackBuffer();
+
+	private:
+		ConsoleBackBuffer m_BackBuffer;
+	};
+}
