@@ -35,37 +35,7 @@ namespace SG {
         const wchar_t* title,
         const wchar_t* className)
     {
-        WNDCLASS wc = {};
-        wc.lpfnWndProc = S_WndProc;
-        wc.hInstance = hInstance;
-        wc.lpszClassName = className;
-        wc.style = CS_HREDRAW | CS_VREDRAW;
-        wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
-        RegisterClass(&wc);
-
-        DWORD dwStyle = WS_OVERLAPPEDWINDOW;
-        RECT rc;
-        SetRect(&rc, 0, 0, w, h);
-        AdjustWindowRect(&rc, dwStyle, FALSE);
-
-        m_hWnd = CreateWindowEx(
-            0,
-            className,
-            title,
-            WS_OVERLAPPEDWINDOW,
-            x, y,
-            rc.right - rc.left, rc.bottom - rc.top,
-            NULL,
-            NULL,
-            hInstance,
-            NULL
-        );
-
-        if (m_hWnd == NULL)
-        {
-            MessageBox(m_hWnd, L"Failed creating window", L"Fatal Error", MB_OK);
-            return;
-        }
+        m_hWnd = MakeWindow(hInstance, x, y, w, h, title, className);
 
         s_WinSurfaces.insert_or_assign(m_hWnd, this);
 
@@ -95,17 +65,15 @@ namespace SG {
 
     LRESULT WinSurface::S_WndProc(HWND hWnd, UINT uMsg, WPARAM w, LPARAM l)
     {
-        if (uMsg == WM_KEYDOWN || uMsg == WM_KEYUP)
-        {
-            if (w != VK_ESCAPE && w != VK_LEFT && w != VK_RIGHT)
-                return DefWindowProc(hWnd, uMsg, w, l);
-        }
-
         auto it = s_WinSurfaces.find(hWnd);
         if (it != s_WinSurfaces.end())
         {
             WND_PROC_FUNC callback = it->second->m_WndProc;
-            return callback(hWnd, uMsg, w, l);
+
+            if (callback != nullptr)
+            {
+                return callback(hWnd, uMsg, w, l);
+            }
         }
 
         return DefWindowProc(hWnd, uMsg, w, l);
@@ -129,5 +97,41 @@ namespace SG {
     HWND WinSurface::GetHWND() const
     {
         return m_hWnd;
+    }
+
+    HWND WinSurface::MakeWindow(HINSTANCE hInstance, int32 x, int32 y, int32 w, int32 h, const wchar_t* title, const wchar_t* className)
+    {
+        WNDCLASS wc = {};
+        wc.lpfnWndProc = S_WndProc;
+        wc.hInstance = hInstance;
+        wc.lpszClassName = className;
+        wc.style = CS_HREDRAW | CS_VREDRAW;
+        wc.hbrBackground = (HBRUSH)GetStockObject(LTGRAY_BRUSH);
+        RegisterClass(&wc);
+
+        DWORD dwStyle = WS_OVERLAPPEDWINDOW;
+        RECT rc;
+        SetRect(&rc, 0, 0, w, h);
+        AdjustWindowRect(&rc, dwStyle, FALSE);
+
+        HWND hWnd = CreateWindowEx(
+            0,
+            className,
+            title,
+            WS_OVERLAPPEDWINDOW,
+            x, y,
+            rc.right - rc.left, rc.bottom - rc.top,
+            NULL,
+            NULL,
+            hInstance,
+            NULL
+        );
+
+        if (hWnd == NULL)
+        {
+            MessageBox(hWnd, L"Failed creating window", L"Fatal Error", MB_OK);
+        }
+
+        return hWnd;
     }
 }

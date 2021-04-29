@@ -15,6 +15,4 @@ public:
 
 	virtual void Release() override;
 
-private:
-	bool m_bExitProgram;
 };

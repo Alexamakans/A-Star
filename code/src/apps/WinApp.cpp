@@ -18,18 +18,12 @@ void WinApp::Init(World* pWorld, Pathfinder* pPathfinder, int32 width, int32 hei
 	if (m_pSurface != nullptr)
 		throw "Already initialized";
 
-	pWorld->SetTileSize(4);
+	pWorld->SetTileSize(TILE_SIZE);
 
 	m_pWorld = pWorld;
 	m_pPathfinder = pPathfinder;
 
-	HINSTANCE hInstance = GetModuleHandle(NULL);
-
 	m_pSurface = new SG::WinSurface();
-
-	m_pContext = new SG::WinContext();
-	m_pContext->Init(m_pSurface);
-
 	SG::WinSurface* pWinSurface = reinterpret_cast<SG::WinSurface*>(m_pSurface);
 	SG::WND_PROC_FUNC pWndProc = [=](HWND hWnd, UINT uMsg, WPARAM w, LPARAM l) -> LRESULT {
 		switch (uMsg)
@@ -57,8 +51,14 @@ void WinApp::Init(World* pWorld, Pathfinder* pPathfinder, int32 width, int32 hei
 		return DefWindowProc(hWnd, uMsg, w, l);
 	};
 
+	pWinSurface->Init(GetModuleHandle(NULL), 0, 0,
+		pWorld->GetTileSize() * width,
+		pWorld->GetTileSize() * height);
+
+	m_pContext = new SG::WinContext();
+	m_pContext->Init(m_pSurface);
+
 	pWinSurface->SetWndProc(pWndProc);
-	pWinSurface->Init(hInstance, 0, 0, pWorld->GetTileSize() * width, pWorld->GetTileSize() * height);
 }
 
 void WinApp::HandleInput()
@@ -73,7 +73,7 @@ void WinApp::HandleInput()
 
 void WinApp::Render()
 {
-	if (m_CurrentTile <= 1)
+	if (m_CurrentTile <= 5)
 	{
 		InvalidateRect(((SG::WinSurface*)m_pSurface)->GetHWND(), NULL, TRUE);
 	}

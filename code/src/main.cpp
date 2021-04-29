@@ -9,6 +9,7 @@
 // Apps
 #include <apps/ConsoleApp.hpp>
 #include <apps/WinApp.hpp>
+#include <apps/DirectXApp.hpp>
 
 #include <Windows.h> // GetAsyncKeyState
 #pragma endregion
@@ -23,7 +24,8 @@ std::mutex g_Mutex;
 #pragma region Constants
 constexpr int32 CONSOLE_APP = 0;
 constexpr int32 WIN32_APP = 1;
-constexpr int32 MAX_APPS = 2;
+constexpr int32 DX11_APP = 2;
+constexpr int32 MAX_APPS = 3;
 #pragma endregion
 
 #pragma region Program flow control variables
@@ -73,6 +75,11 @@ int32 main()
 			else if (appType == WIN32_APP)
 			{
 				pNextApp = new WinApp();
+				pNextApp->Init(pWorld, pPathfinder, WORLD_TILE_WIDTH, WORLD_TILE_HEIGHT);
+			}
+			else if (appType == DX11_APP)
+			{
+				pNextApp = new DirectXApp();
 				pNextApp->Init(pWorld, pPathfinder, WORLD_TILE_WIDTH, WORLD_TILE_HEIGHT);
 			}
 
