@@ -54,7 +54,7 @@ namespace SG {
 			SetColor(RGB(0, 0, 0));
 		}
 
-		FillRectangle(x, y, 4, 4);
+		FillRectangle(x, y, TILE_SIZE, TILE_SIZE);
 	}
 
 	void WinContext::FillRectangle(float x, float y, float w, float h)

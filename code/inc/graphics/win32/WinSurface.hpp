@@ -32,7 +32,7 @@ namespace SG {
 
 		WND_PROC_FUNC m_WndProc;
 
-		static LRESULT CALLBACK S_WndProc(HWND hWnd, UINT msg, WPARAM w, LPARAM l);
+		static LRESULT CALLBACK S_WndProc(HWND hWnd, UINT uMsg, WPARAM w, LPARAM l);
 
 		HDC GetContext() const;
 		void SetContext(HDC context);
@@ -40,6 +40,14 @@ namespace SG {
 		void SetClearColor(COLORREF clearColor);
 
 		HWND GetHWND() const;
+
+	private:
+		HWND MakeWindow(
+			HINSTANCE hInstance,
+			int32 x, int32 y,
+			int32 w, int32 h,
+			const wchar_t* title,
+			const wchar_t* className);
 
 	private:
 		HDC m_Context;

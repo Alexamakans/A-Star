@@ -47,6 +47,7 @@ bool Pathfinder::CalculatePath(const Tile& start, const Tile& goal, _Inout_ Path
 	pStart->gScore = 0.0f; // start -> start has no cost
 	pStart->fScore = h(start, goal);
 
+	m_TileNodeMappings.reserve(WORLD_TILE_WIDTH * WORLD_TILE_HEIGHT);
 	m_TileNodeMappings.insert_or_assign(pStart->pTile, pStart);
 
 	// Contains Nodes of interest, ordered in ascending order by fScore (1st) and gScore (2nd)

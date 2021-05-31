@@ -19,18 +19,23 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="code\src\apps\DirectXApp.cpp" />
+    <ClCompile Include="code\src\graphics\directx11\primitives\Rect.cpp" />
+    <ClCompile Include="code\src\graphics\directx11\DirectX11Context.cpp" />
+    <ClCompile Include="code\src\graphics\directx11\DirectX11Surface.cpp" />
     <ClCompile Include="code\src\apps\WinApp.cpp" />
     <ClCompile Include="code\src\apps\IApp.cpp" />
     <ClCompile Include="code\src\apps\ConsoleApp.cpp" />
-    <ClCompile Include="code\src\graphics\win32\WinGraphics.cpp" />
+    <ClCompile Include="code\src\graphics\win32\WinContext.cpp" />
     <ClCompile Include="code\src\graphics\win32\WinSurface.cpp" />
     <ClCompile Include="code\src\pathfinding\Pathfinder.cpp" />
     <ClCompile Include="code\src\main.cpp" />
-    <ClCompile Include="code\src\graphics\console\ConsoleGraphics.cpp" />
+    <ClCompile Include="code\src\graphics\console\ConsoleContext.cpp" />
     <ClCompile Include="code\src\graphics\console\ConsoleSurface.cpp" />
     <ClCompile Include="code\src\World.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="code\inc\apps\DirectXApp.hpp" />
     <ClInclude Include="code\inc\apps\IApp.hpp" />
     <ClInclude Include="code\inc\apps\ConsoleApp.hpp" />
     <ClInclude Include="code\inc\apps\WinApp.hpp" />
@@ -39,11 +44,30 @@
     <ClInclude Include="code\inc\graphics\core\IDrawable.hpp" />
     <ClInclude Include="code\inc\graphics\core\IContext.hpp" />
     <ClInclude Include="code\inc\graphics\core\ISurface.hpp" />
+    <ClInclude Include="code\inc\graphics\directx11\DirectX11Context.hpp" />
+    <ClInclude Include="code\inc\graphics\directx11\DirectX11Surface.hpp" />
+    <ClInclude Include="code\inc\graphics\directx11\primitives\Rect.hpp" />
     <ClInclude Include="code\inc\graphics\win32\WinContext.hpp" />
     <ClInclude Include="code\inc\graphics\win32\WinSurface.hpp" />
     <ClInclude Include="code\inc\pathfinding\Pathfinder.hpp" />
     <ClInclude Include="code\inc\stdafx.h" />
     <ClInclude Include="code\inc\World.hpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <FxCompile Include="code\data\shaders\PixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
+    <FxCompile Include="code\data\shaders\VertexShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <ShaderModel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">5.1</ShaderModel>
+    </FxCompile>
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
